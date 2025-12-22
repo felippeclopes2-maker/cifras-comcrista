@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Cifra - ICM</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos específicos para a visualização da cifra */
+        .cifra-container {
+            background: white;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        pre {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #333;
+        }
+        b { color: #004a8d; font-weight: bold; } /* Cor dos acordes */
+        
+        .controles-cifra {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-acao {
+            background: #eee;
+            border: 1px solid #ccc;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html" style="color:white; text-decoration:none;"><i class="fa fa-arrow-left"></i> Voltar</a></div>
+        <div id="titulo-hino" style="font-weight:bold;">Carregando...</div>
+    </nav>
+
+    <main class="container">
+<div class="controles-cifra">
+    <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-music"></i> -1 Tom</button>
+    <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-music"></i> +1 Tom</button>
+    
+    <button class="btn-acao" onclick="mudarFonte(1)"><i class="fa fa-plus"></i> Fonte</button>
+    <button class="btn-acao" onclick="mudarFonte(-1)"><i class="fa fa-minus"></i> Fonte</button>
+    <button class="btn-acao" onclick="window.print()"><i class="fa fa-print"></i> PDF</button>
+</div>
+
+<div class="audio-player-container" id="playerAudio" style="display:none; text-align:center; margin-bottom: 20px;">
+    <p style="font-size: 0.8rem; color: #666;">Ouça para aprender a melodia:</p>
+    <audio id="audioElement" controls>
+        <source src="" type="audio/mpeg">
+        Seu navegador não suporta áudio.
+    </audio>
+</div>
+
+        <div class="cifra-container">
+            <pre id="conteudo-cifra">
+                </pre>
+        </div>
+    </main>
+
+    <script>
+// 1. Pega o número do hino que veio da URL (ex: cifra.html?hino=2201)
+const urlParams = new URLSearchParams(window.location.search);
+const numeroHino = urlParams.get('hino');
+
+// 2. O "Motor Inteligente" que busca o arquivo JSON na pasta /cifras/
+if (numeroHino) {
+    fetch(`cifras/${numeroHino}.json`)
+        .then(response => {
+            if (!response.ok) throw new Error('Hino não encontrado');
+            return response.json();
+        })
+        .then(hino => {
+            // Preenche o título e o corpo da cifra
+            document.getElementById('titulo-hino').innerText = `${hino.numero} - ${hino.titulo}`;
+            document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
+            
+            // Gerencia o áudio se ele existir no arquivo JSON
+            const player = document.getElementById('playerAudio');
+            const audio = document.getElementById('audioElement');
+            if(hino.audioUrl) {
+                audio.src = hino.audioUrl;
+                player.style.display = 'block';
+            } else {
+                player.style.display = 'none';
+            }
+        })
+        .catch(err => {
+    console.error(err);
+    // Se o arquivo não for encontrado, ele tenta buscar deste plano B:
+    const backup = {
+        "2201": "<b>C</b>\nO Senhor é o meu pastor (Modo Offline)"
+    };
+    
+    if(backup[numeroHino]) {
+        document.getElementById('conteudo-cifra').innerHTML = backup[numeroHino];
+    } else {
+        document.getElementById('conteudo-cifra').innerHTML = "Arquivo .json não encontrado na pasta /cifras/";
+    }
+});
+}
+
+// 3. Função para mudar o tamanho da fonte
+function mudarFonte(delta) {
+    const pre = document.getElementById('conteudo-cifra');
+    const style = window.getComputedStyle(pre, null).getPropertyValue('font-size');
+    const fontSize = parseFloat(style); 
+    pre.style.fontSize = (fontSize + delta) + 'px';
+}
+    </script>
+	
+	<script src="transpositor.js"></script> 
+    
+    <script>
+        // O código que busca a cifra no banco de dados e coloca no <pre>
+        // Agora o mudarTom(-1) que está no botão vai encontrar a função no arquivo externo.
+    </script>
+</body>
+</body>
+</html>

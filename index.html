@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cifras ICM - Nova Friburgo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">CIFRAS <span>ICM</span></div>
+    <div class="menu-categorias" id="menuCategorias">
+        <a href="#" class="filter-btn active" data-cat="TODOS">Todos</a>
+        <a href="#" class="filter-btn" data-cat="COLETANEA">Coletânea</a>
+        <a href="#" class="filter-btn" data-cat="CIAs">CIAs</a>
+        <a href="#" class="filter-btn" data-cat="AVULSOS">Avulsos</a>
+    </div>
+</nav>
+
+    <section class="search-container">
+        <div class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" id="inputBusca" placeholder="Pesquisar por número ou título...">
+        </div>
+    </section>
+
+    <main class="container">
+        <div id="listaLouvores" class="grid-louvores">
+            </div>
+    </main>
+
+    <script src="dados.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
