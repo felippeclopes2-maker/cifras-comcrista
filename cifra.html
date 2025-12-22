@@ -129,17 +129,24 @@ function mudarFonte(delta) {
 }
 
 function compartilharWhatsApp() {
-    // Pega o título do hino que já está na tela
-    const titulo = document.getElementById('titulo-hino').innerText;
+    // 1. Pega o título do hino
+    const tituloHino = document.getElementById('titulo-hino').innerText;
     
-    // Pega o link atual da página (URL completa)
+    // 2. Pega a URL atual
     const urlCifra = window.location.href;
     
-    // Monta a mensagem formatada
-    const mensagem = encodeURIComponent(`🎸 *Cifra ICM*\n🎵 Louvor: *${titulo}*\n\nVeja aqui:\n${urlCifra}`);
+    // 3. Cria a mensagem de texto
+    const textoMensagem = `🎸 *Cifra ICM*\n🎵 Louvor: *${tituloHino}*\n\nVeja a cifra aqui:\n${urlCifra}`;
     
-    // Abre o link do WhatsApp
-    window.open(`https://api.whatsapp.org/send?text=${mensagem}`, '_blank');
+    // 4. Codifica para o formato de URL do WhatsApp
+    const linkFinal = "https://wa.me/?text=" + encodeURIComponent(textoMensagem);
+    
+    // 5. Tenta abrir. Se falhar, usa o método alternativo de redirecionamento
+    try {
+        window.open(linkFinal, '_blank').focus();
+    } catch (e) {
+        window.location.href = linkFinal;
+    }
 }
     </script>
 	
@@ -153,4 +160,5 @@ function compartilharWhatsApp() {
 </body>
 
 </html>
+
 
