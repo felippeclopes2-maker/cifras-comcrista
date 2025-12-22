@@ -127,6 +127,20 @@ function mudarFonte(delta) {
     const fontSize = parseFloat(style); 
     pre.style.fontSize = (fontSize + delta) + 'px';
 }
+
+function compartilharWhatsApp() {
+    // Pega o título do hino que já está na tela
+    const titulo = document.getElementById('titulo-hino').innerText;
+    
+    // Pega o link atual da página (URL completa)
+    const urlCifra = window.location.href;
+    
+    // Monta a mensagem formatada
+    const mensagem = encodeURIComponent(`🎸 *Cifra ICM*\n🎵 Louvor: *${titulo}*\n\nVeja aqui:\n${urlCifra}`);
+    
+    // Abre o link do WhatsApp
+    window.open(`https://api.whatsapp.org/send?text=${mensagem}`, '_blank');
+}
     </script>
 	
 	<script src="transpositor.js"></script> 
@@ -139,3 +153,4 @@ function mudarFonte(delta) {
 </body>
 
 </html>
+
