@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo - Cifras ICM</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 300px; font-family: monospace; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .controles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .controles input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .resultado { background: #eef; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px dashed #004a8d; position: relative; }
+        .btn-gerar { background: #28a745; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; font-size: 1.1rem; border-radius: 4px; font-weight: bold; }
+        .btn-gerar:hover { background: #218838; }
+        .copy-btn { position: absolute; right: 10px; top: 10px; background: #004a8d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
+        pre { white-space: pre-wrap; word-wrap: break-word; margin: 0; font-size: 0.9rem; }
+        h3 { margin-bottom: 5px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h2>Gerador de Arquivos JSON</h2>
+        <p>Preencha os dados, cole a cifra e clique em "Gerar".</p>
+        
+        <div class="controles">
+            <input type="text" id="admNum" placeholder="Número (ex: 2201)">
+            <input type="text" id="admTitulo" placeholder="Título do Louvor">
+            <input type="text" id="admTom" placeholder="Tom (ex: G)">
+        </div>
+
+        <textarea id="admLetra" placeholder="Cole a letra com cifras aqui..."></textarea>
+        
+        <button class="btn-gerar" onclick="gerarJSON()">Gerar Arquivo JSON</button>
+
+        <div id="blocoResultado" style="display:none;">
+            <h3 style="margin-top: 30px;">1. Arquivo de Conteúdo (.json)</h3>
+            <div class="resultado">
+                <button class="copy-btn" onclick="copiarTexto('jsonSaida')">Copiar</button>
+                <pre id="jsonSaida"></pre>
+            </div>
+            
+            <button onclick="baixarJSON()" style="background: #007bff; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px;">
+                <i class="fa fa-download"></i> BAIXAR ARQUIVO .JSON
+            </button>
+
+            <h3 style="margin-top: 30px;">2. Linha para adicionar no dados.js</h3>
+            <div class="resultado" style="background: #fff3cd; border-color: #ffeeba;">
+                <button class="copy-btn" onclick="copiarTexto('linhaDados')">Copiar</button>
+                <pre id="linhaDados" style="color: #856404;"></pre>
+            </div>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                * Salve o arquivo .json na pasta <b>/cifras/</b> e cole a linha acima no seu arquivo <b>dados.js</b>.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function gerarJSON() {
+            const num = document.getElementById('admNum').value;
+            const titulo = document.getElementById('admTitulo').value;
+            const tom = document.getElementById('admTom').value;
+            let letra = document.getElementById('admLetra').value;
+
+            if(!num || !titulo) {
+                alert("Preencha pelo menos o Número e o Título!");
+                return;
+            }
+
+            // Expressão regular para identificar acordes
+            let letraFormatada = letra.replace(/(?<=^|[\s])([A-G][#b]?(m|maj|dim|aug|sus|add)?([245679])?(\/[A-G][#b]?)?(?=\s|$))/g, "<b>$1</b>");
+
+            const objetoFinal = {
+                numero: num,
+                titulo: titulo,
+                tom: tom,
+                corpo: letraFormatada
+            };
+
+            const linhaIndice = `{ "num": "${num}", "titulo": "${titulo}" },`;
+
+            // Exibe os resultados nos campos corretos
+            document.getElementById('jsonSaida').textContent = JSON.stringify(objetoFinal, null, 4);
+            document.getElementById('linhaDados').textContent = linhaIndice;
+            
+            // Mostra o bloco de resultados
+            document.getElementById('blocoResultado').style.display = 'block';
+            
+            // Rola a tela suavemente até o resultado
+            document.getElementById('blocoResultado').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copiarTexto(idElemento) {
+            const texto = document.getElementById(idElemento).textContent;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Copiado com sucesso!");
+            });
+        }
+
+        function baixarJSON() {
+            const num = document.getElementById('admNum').value;
+            const texto = document.getElementById('jsonSaida').textContent;
+            
+            if(!texto) return;
+
+            const blob = new Blob([texto], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            link.href = url;
+            link.download = `${num}.json`; 
+            document.body.appendChild(link);
+            link.click();
+            
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
