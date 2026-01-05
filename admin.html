@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .admin-container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-family: sans-serif; }
-        textarea { width: 100%; height: 300px; font-family: 'Courier New', monospace; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        textarea { width: 100%; height: 350px; font-family: 'Courier New', monospace; margin-top: 10px; padding: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; line-height: 1.5; }
         .controles { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 20px; }
         .controles input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; }
         .resultado { background: #f4f7f9; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px dashed #004a8d; position: relative; }
@@ -28,7 +28,7 @@
             <input type="text" id="admTom" placeholder="Tom Padrão">
         </div>
 
-        <textarea id="admLetra" placeholder="Cole a letra com cifras aqui (os acordes devem estar sobre as letras ou com espaços)..."></textarea>
+        <textarea id="admLetra" placeholder="Cole a letra com cifras aqui..."></textarea>
         
         <button class="btn-gerar" onclick="gerarJSON()">Gerar Arquivo e Código</button>
 
@@ -48,55 +48,65 @@
                 <button class="copy-btn" onclick="copiarTexto('linhaDados')">Copiar</button>
                 <pre id="linhaDados" style="color: #856404; font-weight: bold;"></pre>
             </div>
-            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
-                * O arquivo será baixado com o nome do Título e Artista combinados para evitar erros de substituição.
-            </p>
         </div>
     </div>
 
     <script>
         function gerarJSON() {
-            const titulo = document.getElementById('admTitulo').value.trim();
-            const artista = document.getElementById('admArtista').value.trim();
-            const tom = document.getElementById('admTom').value.trim();
-            let letra = document.getElementById('admLetra').value;
+            try {
+                const titulo = document.getElementById('admTitulo').value.trim();
+                const artista = document.getElementById('admArtista').value.trim();
+                const tom = document.getElementById('admTom').value.trim();
+                let letra = document.getElementById('admLetra').value;
 
-            if(!titulo || !artista) {
-                alert("Título e Artista são obrigatórios!");
-                return;
+                if (!titulo || !artista) {
+                    alert("Título e Artista são obrigatórios!");
+                    return;
+                }
+
+                const identificadorUnico = `${titulo} - ${artista}`;
+
+                // LÓGICA DE DETECÇÃO DE ACORDES (SIMPLIFICADA E SEGURA)
+                // Esta versão captura acordes complexos como F7M/C, G/B, Am7 etc.
+                const regexAcordes = /([A-G][#b]?(?:m|maj|M|dim|aug|sus|add|alt|7M)?(?:\d{1,2})?(?:M|maj|min|7M)?(?:\/[A-G][#b]?)?)/g;
+                
+                // Dividimos o texto por linhas para processar melhor
+                let linhas = letra.split('\n');
+                let linhasProcessadas = linhas.map(linha => {
+                    // Se a linha tiver muitos espaços ou for curta, provavelmente é uma linha de acordes
+                    // Vamos aplicar o negrito nos padrões encontrados
+                    return linha.replace(regexAcordes, "<b>$1</b>");
+                });
+
+                let letraFormatada = linhasProcessadas.join('\n');
+
+                const objetoFinal = {
+                    titulo: titulo,
+                    artista: artista,
+                    tom: tom,
+                    corpo: letraFormatada
+                };
+
+                const linhaIndice = `{ "num": "${identificadorUnico}", "titulo": "${titulo}" },`;
+
+                // Exibe os resultados
+                document.getElementById('jsonSaida').textContent = JSON.stringify(objetoFinal, null, 4);
+                document.getElementById('linhaDados').textContent = linhaIndice;
+                document.getElementById('labelNomeArquivo').textContent = identificadorUnico;
+                
+                document.getElementById('blocoResultado').style.display = 'block';
+                document.getElementById('blocoResultado').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (erro) {
+                console.error(erro);
+                alert("Erro ao gerar: " + erro.message);
             }
-
-            const identificadorUnico = `${titulo} - ${artista}`;
-
-            // REGEX ATUALIZADA: Captura acordes complexos como F7M/C, G/B, Am7(9), Dsus4, etc.
-            // O segredo está no grupo (<b>$1</b>) que envolve o que foi encontrado
-            let letraFormatada = letra.replace(/(?<=^|[\s])([A-G][#b]?(?:m|maj|M|dim|aug|sus|add|alt)?(?:\d{1,2})?(?:M|maj|min|7M)?(?:\/[A-G][#b]?)?)(?=\s|$)/g, "<b>$1</b>");
-
-            const objetoFinal = {
-                titulo: titulo,
-                artista: artista,
-                tom: tom,
-                corpo: letraFormatada
-            };
-
-            const linhaIndice = `{ "num": "${identificadorUnico}", "titulo": "${titulo}" },`;
-
-            // Preenche as saídas na tela
-            document.getElementById('jsonSaida').textContent = JSON.stringify(objetoFinal, null, 4);
-            document.getElementById('linhaDados').textContent = linhaIndice;
-            document.getElementById('labelNomeArquivo').textContent = identificadorUnico;
-            
-            // Exibe o bloco de resultados e rola a tela
-            document.getElementById('blocoResultado').style.display = 'block';
-            document.getElementById('blocoResultado').scrollIntoView({ behavior: 'smooth' });
         }
 
         function copiarTexto(idElemento) {
             const texto = document.getElementById(idElemento).textContent;
             navigator.clipboard.writeText(texto).then(() => {
-                alert("Conteúdo copiado com sucesso!");
-            }).catch(err => {
-                alert("Erro ao copiar: ", err);
+                alert("Copiado com sucesso!");
             });
         }
 
