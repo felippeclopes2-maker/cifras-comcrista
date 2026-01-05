@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="admin-container">
-        <h2>Gerador de Cifras (Título + Artista)</h2>
+        <h2>Gerador de Cifras (Inteligente)</h2>
         
         <div class="controles">
             <input type="text" id="admTitulo" placeholder="Título do Louvor">
@@ -66,19 +66,11 @@
 
                 const identificadorUnico = `${titulo} - ${artista}`;
 
-                // LÓGICA DE DETECÇÃO DE ACORDES (SIMPLIFICADA E SEGURA)
-                // Esta versão captura acordes complexos como F7M/C, G/B, Am7 etc.
-                const regexAcordes = /([A-G][#b]?(?:m|maj|M|dim|aug|sus|add|alt|7M)?(?:\d{1,2})?(?:M|maj|min|7M)?(?:\/[A-G][#b]?)?)/g;
+                // REGEX REFINADA: Aceita Am, F7M/C, G/B e ignora palavras como "Deus", "Amo"
+                // A regra (?!\w) impede que ele pegue letras coladas em palavras
+                const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?!\w)/g;
                 
-                // Dividimos o texto por linhas para processar melhor
-                let linhas = letra.split('\n');
-                let linhasProcessadas = linhas.map(linha => {
-                    // Se a linha tiver muitos espaços ou for curta, provavelmente é uma linha de acordes
-                    // Vamos aplicar o negrito nos padrões encontrados
-                    return linha.replace(regexAcordes, "<b>$1</b>");
-                });
-
-                let letraFormatada = linhasProcessadas.join('\n');
+                let letraFormatada = letra.replace(regexAcordes, "<b>$1</b>");
 
                 const objetoFinal = {
                     titulo: titulo,
@@ -89,10 +81,14 @@
 
                 const linhaIndice = `{ "num": "${identificadorUnico}", "titulo": "${titulo}" },`;
 
-                // Exibe os resultados
-                document.getElementById('jsonSaida').textContent = JSON.stringify(objetoFinal, null, 4);
-                document.getElementById('linhaDados').textContent = linhaIndice;
-                document.getElementById('labelNomeArquivo').textContent = identificadorUnico;
+                // Garante que os IDs existem antes de preencher
+                const saidaJSON = document.getElementById('jsonSaida');
+                const saidaLinha = document.getElementById('linhaDados');
+                const labelArquivo = document.getElementById('labelNomeArquivo');
+
+                if(saidaJSON) saidaJSON.textContent = JSON.stringify(objetoFinal, null, 4);
+                if(saidaLinha) saidaLinha.textContent = linhaIndice;
+                if(labelArquivo) labelArquivo.textContent = identificadorUnico;
                 
                 document.getElementById('blocoResultado').style.display = 'block';
                 document.getElementById('blocoResultado').scrollIntoView({ behavior: 'smooth' });
@@ -104,21 +100,21 @@
         }
 
         function copiarTexto(idElemento) {
-            const texto = document.getElementById(idElemento).textContent;
-            navigator.clipboard.writeText(texto).then(() => {
-                alert("Copiado com sucesso!");
-            });
+            const el = document.getElementById(idElemento);
+            if(el) {
+                navigator.clipboard.writeText(el.textContent).then(() => alert("Copiado!"));
+            }
         }
 
         function baixarJSON() {
             const titulo = document.getElementById('admTitulo').value.trim();
             const artista = document.getElementById('admArtista').value.trim();
-            const texto = document.getElementById('jsonSaida').textContent;
+            const jsonSaida = document.getElementById('jsonSaida');
             
-            if(!texto) return;
+            if(!jsonSaida || !jsonSaida.textContent) return;
 
             const identificadorUnico = `${titulo} - ${artista}`;
-            const blob = new Blob([texto], { type: "application/json" });
+            const blob = new Blob([jsonSaida.textContent], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             
