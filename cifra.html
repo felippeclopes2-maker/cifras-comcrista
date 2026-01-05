@@ -92,9 +92,11 @@ if (numeroHino) {
         })
         .then(hino => {
             // Preenche o título e o corpo da cifra
-            document.getElementById('titulo-hino').innerText = `${hino.numero} - ${hino.titulo}`;
+            document.getElementById('titulo-hino').innerText = hino.titulo;
             document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
-            
+         if(hino.artista) {
+         document.getElementById('titulo-hino').innerHTML += `<br><span style="font-size:0.8rem; opacity:0.8">por ${hino.artista}</span>`;
+         }
             // Gerencia o áudio se ele existir no arquivo JSON
             const player = document.getElementById('playerAudio');
             const audio = document.getElementById('audioElement');
@@ -160,5 +162,6 @@ function compartilharWhatsApp() {
 </body>
 
 </html>
+
 
 
