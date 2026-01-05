@@ -44,10 +44,15 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo"><a href="index.html" style="color:white; text-decoration:none;"><i class="fa fa-arrow-left"></i> Voltar</a></div>
-        <div id="titulo-hino" style="font-weight:bold;">Carregando...</div>
-    </nav>
+<nav class="navbar">
+    <div class="logo"><a href="index.html" style="color:white; text-decoration:none;"><i class="fa fa-arrow-left"></i> Voltar</a></div>
+    <div id="titulo-hino" style="font-weight:bold;">Carregando...</div>
+</nav>
+
+<div id="detalhes-hino" style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #555;">
+    <span id="info-artista"></span> 
+    <span id="info-voz" style="margin-left: 15px; font-weight: bold; color: #004a8d;"></span>
+</div>
 
     <main class="container">
 <div class="controles-cifra">
@@ -95,15 +100,15 @@ if (numeroHino) {
             document.getElementById('titulo-hino').innerText = `${hino.numero} - ${hino.titulo}`;
             document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
             
-            // Gerencia o áudio se ele existir no arquivo JSON
-            const player = document.getElementById('playerAudio');
-            const audio = document.getElementById('audioElement');
-            if(hino.audioUrl) {
-                audio.src = hino.audioUrl;
-                player.style.display = 'block';
-            } else {
-                player.style.display = 'none';
-            }
+           // Exibe o artista se existir
+           if(hino.artista) {
+           document.getElementById('info-artista').innerHTML = `<i class="fa fa-user"></i> ${hino.artista}`;
+           }
+    
+          // Exibe a extensão vocal se existir
+          if(hino.voz) {
+          document.getElementById('info-voz').innerHTML = `<i class="fa fa-microphone"></i> Voz: ${hino.voz}`;
+          }
         })
         .catch(err => {
     console.error(err);
@@ -160,5 +165,6 @@ function compartilharWhatsApp() {
 </body>
 
 </html>
+
 
 
