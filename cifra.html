@@ -50,122 +50,112 @@
     </nav>
 
     <main class="container">
-<div class="controles-cifra">
-	<button class="btn-acao" onclick="restaurarTomOriginal()" style="background: #f8f9fa; border-color: #004a8d; color: #004a8d;">
-        <i class="fa fa-undo"></i> Tom Padrão
-    </button>
-    <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-music"></i> -1 Tom</button>
-    <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-music"></i> +1 Tom</button>
-    
-    <button class="btn-acao" onclick="mudarFonte(1)"><i class="fa fa-plus"></i> Fonte</button>
-    <button class="btn-acao" onclick="mudarFonte(-1)"><i class="fa fa-minus"></i> Fonte</button>
+        <div class="controles-cifra">
+            <button class="btn-acao" onclick="restaurarTomOriginal()" style="background: #f8f9fa; border-color: #004a8d; color: #004a8d;">
+                <i class="fa fa-undo"></i> Tom Padrão
+            </button>
+            <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-music"></i> -1 Tom</button>
+            <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-music"></i> +1 Tom</button>
+            
+            <button class="btn-acao" onclick="mudarFonte(1)"><i class="fa fa-plus"></i> Fonte</button>
+            <button class="btn-acao" onclick="mudarFonte(-1)"><i class="fa fa-minus"></i> Fonte</button>
 
-    <button class="btn-acao" onclick="compartilharWhatsApp()" style="background-color: #25d366; color: white; border: none;">
-        <i class="fab fa-whatsapp"></i> Enviar
-    </button>
-    
-    <button class="btn-acao" onclick="window.print()"><i class="fa fa-print"></i> PDF</button>
-</div>
+            <button class="btn-acao" onclick="compartilharWhatsApp()" style="background-color: #25d366; color: white; border: none;">
+                <i class="fab fa-whatsapp"></i> Enviar
+            </button>
+            
+            <button class="btn-acao" onclick="window.print()"><i class="fa fa-print"></i> PDF</button>
+        </div>
 
-<div class="audio-player-container" id="playerAudio" style="display:none; text-align:center; margin-bottom: 20px;">
-    <p style="font-size: 0.8rem; color: #666;">Ouça para aprender a melodia:</p>
-    <audio id="audioElement" controls>
-        <source src="" type="audio/mpeg">
-        Seu navegador não suporta áudio.
-    </audio>
-</div>
+        <div class="audio-player-container" id="playerAudio" style="display:none; text-align:center; margin-bottom: 20px;">
+            <p style="font-size: 0.8rem; color: #666;">Ouça para aprender a melodia:</p>
+            <audio id="audioElement" controls>
+                <source src="" type="audio/mpeg">
+                Seu navegador não suporta áudio.
+            </audio>
+        </div>
 
         <div class="cifra-container">
-            <pre id="conteudo-cifra">
-                </pre>
+            <pre id="conteudo-cifra"></pre>
         </div>
     </main>
 
     <script>
-// 1. Pega o número do hino que veio da URL (ex: cifra.html?hino=2201)
-const urlParams = new URLSearchParams(window.location.search);
-const numeroHino = urlParams.get('hino');
+        // Variável para armazenar o estado original da cifra (tom padrão)
+        let cifraOriginalHtml = "";
 
-// 2. O "Motor Inteligente" que busca o arquivo JSON na pasta /cifras/
-if (numeroHino) {
-    fetch(`cifras/${numeroHino}.json`)
-        .then(response => {
-            if (!response.ok) throw new Error('Hino não encontrado');
-            return response.json();
-        })
-        .then(hino => {
-            // Preenche o título e o corpo da cifra
-            document.getElementById('titulo-hino').innerText = hino.titulo;
-            document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
-         if(hino.artista) {
-         document.getElementById('titulo-hino').innerHTML += `<br><span style="font-size:0.8rem; opacity:0.8">por ${hino.artista}</span>`;
-         }
-            // Gerencia o áudio se ele existir no arquivo JSON
-            const player = document.getElementById('playerAudio');
-            const audio = document.getElementById('audioElement');
-            if(hino.audioUrl) {
-                audio.src = hino.audioUrl;
-                player.style.display = 'block';
-            } else {
-                player.style.display = 'none';
+        const urlParams = new URLSearchParams(window.location.search);
+        const numeroHino = urlParams.get('hino');
+
+        if (numeroHino) {
+            fetch(`cifras/${numeroHino}.json`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Hino não encontrado');
+                    return response.json();
+                })
+                .then(hino => {
+                    document.getElementById('titulo-hino').innerText = hino.titulo;
+                    
+                    // Salva a cifra original para permitir restauração do tom
+                    cifraOriginalHtml = hino.corpo;
+                    document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
+
+                    if(hino.artista) {
+                        document.getElementById('titulo-hino').innerHTML += `<br><span style="font-size:0.8rem; opacity:0.8">por ${hino.artista}</span>`;
+                    }
+                    
+                    const player = document.getElementById('playerAudio');
+                    const audio = document.getElementById('audioElement');
+                    if(hino.audioUrl) {
+                        audio.src = hino.audioUrl;
+                        player.style.display = 'block';
+                    } else {
+                        player.style.display = 'none';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    const backup = {
+                        "2201": "<b>C</b>\nO Senhor é o meu pastor (Modo Offline)"
+                    };
+                    
+                    if(backup[numeroHino]) {
+                        cifraOriginalHtml = backup[numeroHino];
+                        document.getElementById('conteudo-cifra').innerHTML = backup[numeroHino];
+                    } else {
+                        document.getElementById('conteudo-cifra').innerHTML = "Arquivo .json não encontrado na pasta /cifras/";
+                    }
+                });
+        }
+
+        // Função para restaurar o tom original do arquivo
+        function restaurarTomOriginal() {
+            if (cifraOriginalHtml !== "") {
+                document.getElementById('conteudo-cifra').innerHTML = cifraOriginalHtml;
             }
-        })
-        .catch(err => {
-    console.error(err);
-    // Se o arquivo não for encontrado, ele tenta buscar deste plano B:
-    const backup = {
-        "2201": "<b>C</b>\nO Senhor é o meu pastor (Modo Offline)"
-    };
-    
-    if(backup[numeroHino]) {
-        document.getElementById('conteudo-cifra').innerHTML = backup[numeroHino];
-    } else {
-        document.getElementById('conteudo-cifra').innerHTML = "Arquivo .json não encontrado na pasta /cifras/";
-    }
-});
-}
+        }
 
-// 3. Função para mudar o tamanho da fonte
-function mudarFonte(delta) {
-    const pre = document.getElementById('conteudo-cifra');
-    const style = window.getComputedStyle(pre, null).getPropertyValue('font-size');
-    const fontSize = parseFloat(style); 
-    pre.style.fontSize = (fontSize + delta) + 'px';
-}
+        function mudarFonte(delta) {
+            const pre = document.getElementById('conteudo-cifra');
+            const style = window.getComputedStyle(pre, null).getPropertyValue('font-size');
+            const fontSize = parseFloat(style); 
+            pre.style.fontSize = (fontSize + delta) + 'px';
+        }
 
-function compartilharWhatsApp() {
-    // 1. Pega o título do hino
-    const tituloHino = document.getElementById('titulo-hino').innerText;
-    
-    // 2. Pega a URL atual
-    const urlCifra = window.location.href;
-    
-    // 3. Cria a mensagem de texto
-    const textoMensagem = `🎸 *Cifra ICM*\n🎵 Louvor: *${tituloHino}*\n\nVeja a cifra aqui:\n${urlCifra}`;
-    
-    // 4. Codifica para o formato de URL do WhatsApp
-    const linkFinal = "https://wa.me/?text=" + encodeURIComponent(textoMensagem);
-    
-    // 5. Tenta abrir. Se falhar, usa o método alternativo de redirecionamento
-    try {
-        window.open(linkFinal, '_blank').focus();
-    } catch (e) {
-        window.location.href = linkFinal;
-    }
-}
+        function compartilharWhatsApp() {
+            const tituloHino = document.getElementById('titulo-hino').innerText;
+            const urlCifra = window.location.href;
+            const textoMensagem = `🎸 *Cifra ICM*\n🎵 Louvor: *${tituloHino}*\n\nVeja a cifra aqui:\n${urlCifra}`;
+            const linkFinal = "https://wa.me/?text=" + encodeURIComponent(textoMensagem);
+            
+            try {
+                window.open(linkFinal, '_blank').focus();
+            } catch (e) {
+                window.location.href = linkFinal;
+            }
+        }
     </script>
-	
-	<script src="transpositor.js"></script> 
     
-    <script>
-        // O código que busca a cifra no banco de dados e coloca no <pre>
-        // Agora o mudarTom(-1) que está no botão vai encontrar a função no arquivo externo.
-    </script>
+    <script src="transpositor.js"></script> 
 </body>
-</body>
-
 </html>
-
-
-
-
