@@ -8,20 +8,21 @@
     <style>
         .admin-container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         textarea { width: 100%; height: 300px; font-family: monospace; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .controles { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .controles { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 20px; }
         .controles input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .resultado { background: #eef; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px dashed #004a8d; position: relative; }
         .btn-gerar { background: #28a745; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; font-size: 1.1rem; border-radius: 4px; font-weight: bold; }
         .copy-btn { position: absolute; right: 10px; top: 10px; background: #004a8d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
         pre { white-space: pre-wrap; word-wrap: break-word; margin: 0; font-size: 0.9rem; }
+        h3 { margin-bottom: 5px; color: #333; }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <h2>Gerador de Cifras (Por Nome)</h2>
+        <h2>Gerador de Cifras (Título + Artista)</h2>
         
         <div class="controles">
-            <input type="text" id="admTitulo" placeholder="Título do Louvor (Será o nome do arquivo)">
+            <input type="text" id="admTitulo" placeholder="Título do Louvor">
             <input type="text" id="admArtista" placeholder="Artista/Autor">
             <input type="text" id="admTom" placeholder="Tom Padrão">
         </div>
@@ -38,7 +39,7 @@
             </div>
             
             <button onclick="baixarJSON()" style="background: #007bff; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                <i class="fa fa-download"></i> BAIXAR ARQUIVO .JSON
+                <i class="fa fa-download"></i> BAIXAR: <span id="labelNomeArquivo"></span>.json
             </button>
 
             <h3 style="margin-top: 30px;">2. Linha para o dados.js</h3>
@@ -46,20 +47,26 @@
                 <button class="copy-btn" onclick="copiarTexto('linhaDados')">Copiar</button>
                 <pre id="linhaDados" style="color: #856404;"></pre>
             </div>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                * O nome do arquivo e o link no <b>dados.js</b> agora incluem o artista para evitar duplicatas.
+            </p>
         </div>
     </div>
 
     <script>
         function gerarJSON() {
-            const titulo = document.getElementById('admTitulo').value;
-            const artista = document.getElementById('admArtista').value;
-            const tom = document.getElementById('admTom').value;
+            const titulo = document.getElementById('admTitulo').value.trim();
+            const artista = document.getElementById('admArtista').value.trim();
+            const tom = document.getElementById('admTom').value.trim();
             let letra = document.getElementById('admLetra').value;
 
-            if(!titulo) {
-                alert("O título é obrigatório para nomear o arquivo!");
+            if(!titulo || !artista) {
+                alert("Título e Artista são obrigatórios para gerar o nome do arquivo!");
                 return;
             }
+
+            // Define o nome único (ID) do arquivo e da busca
+            const identificadorUnico = `${titulo} - ${artista}`;
 
             // Formatação de acordes com <b>
             let letraFormatada = letra.replace(/(?<=^|[\s])([A-G][#b]?(m|maj|dim|aug|sus|add)?([245679])?(\/[A-G][#b]?)?(?=\s|$))/g, "<b>$1</b>");
@@ -71,11 +78,13 @@
                 corpo: letraFormatada
             };
 
-            // A linha do dados.js agora usa o título no campo 'num' para o link funcionar
-            const linhaIndice = `{ "num": "${titulo}", "titulo": "${titulo}" },`;
+            // A linha do dados.js usa o identificador único para bater com o arquivo .json
+            const linhaIndice = `{ "num": "${identificadorUnico}", "titulo": "${titulo} (${artista})" },`;
 
             document.getElementById('jsonSaida').textContent = JSON.stringify(objetoFinal, null, 4);
             document.getElementById('linhaDados').textContent = linhaIndice;
+            document.getElementById('labelNomeArquivo').textContent = identificadorUnico;
+            
             document.getElementById('blocoResultado').style.display = 'block';
             document.getElementById('blocoResultado').scrollIntoView({ behavior: 'smooth' });
         }
@@ -86,17 +95,19 @@
         }
 
         function baixarJSON() {
-            const titulo = document.getElementById('admTitulo').value;
+            const titulo = document.getElementById('admTitulo').value.trim();
+            const artista = document.getElementById('admArtista').value.trim();
             const texto = document.getElementById('jsonSaida').textContent;
+            
             if(!texto) return;
 
+            const identificadorUnico = `${titulo} - ${artista}`;
             const blob = new Blob([texto], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             
-            // O nome do arquivo será o título digitado
             link.href = url;
-            link.download = `${titulo}.json`; 
+            link.download = `${identificadorUnico}.json`; 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
