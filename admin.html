@@ -23,19 +23,11 @@
         <h2>Gerador de Arquivos JSON</h2>
         <p>Preencha os dados, cole a cifra e clique em "Gerar".</p>
         
-<div class="controles">
-    <input type="text" id="admNum" placeholder="Número">
-    <input type="text" id="admTitulo" placeholder="Título">
-    <input type="text" id="admTom" placeholder="Tom Padrão">
-    <input type="text" id="admArtista" placeholder="Artista/Autor (Opcional)">
-    <select id="admVoz">
-        <option value="">Extensão Vocal (Opcional)</option>
-        <option value="Soprano / Tenor">Soprano / Tenor (Agudo)</option>
-        <option value="Contralto / Baixo">Contralto / Baixo (Grave)</option>
-        <option value="Barítono">Barítono (Médio)</option>
-        <option value="Mezzo-Soprano">Mezzo-Soprano (Médio)</option>
-    </select>
-</div>
+        <div class="controles">
+            <input type="text" id="admNum" placeholder="Número (ex: 2201)">
+            <input type="text" id="admTitulo" placeholder="Título do Louvor">
+            <input type="text" id="admTom" placeholder="Tom (ex: G)">
+        </div>
 
         <textarea id="admLetra" placeholder="Cole a letra com cifras aqui..."></textarea>
         
@@ -78,14 +70,12 @@
             // Expressão regular para identificar acordes
             let letraFormatada = letra.replace(/(?<=^|[\s])([A-G][#b]?(m|maj|dim|aug|sus|add)?([245679])?(\/[A-G][#b]?)?(?=\s|$))/g, "<b>$1</b>");
 
-const objetoFinal = {
-    numero: num,
-    titulo: titulo,
-    tom: tom,
-    artista: document.getElementById('admArtista').value, // Novo campo
-    voz: document.getElementById('admVoz').value,         // Novo campo
-    corpo: letraFormatada
-};
+            const objetoFinal = {
+                numero: num,
+                titulo: titulo,
+                tom: tom,
+                corpo: letraFormatada
+            };
 
             const linhaIndice = `{ "num": "${num}", "titulo": "${titulo}" },`;
 
@@ -127,5 +117,4 @@ const objetoFinal = {
         }
     </script>
 </body>
-
 </html>
