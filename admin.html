@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel Administrativo - Cifras ICM</title>
+    <title>Painel Adm - Cifras Comunidade</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -66,9 +66,10 @@
 
                 const identificadorUnico = `${titulo} - ${artista}`;
 
-                // REGEX REFINADA: Aceita Am, F7M/C, G/B e ignora palavras como "Deus", "Amo"
-                // A regra (?!\w) impede que ele pegue letras coladas em palavras
-                const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?!\w)/g;
+                // REGEX MELHORADA: 
+                // Exceção para "Em" seguido de letra minúscula (início de frase)
+                // Protege "Em espírito", "Em verdade", etc.
+                const regexAcordes = /\b(Em(?!\s[a-zçáéíóúà])|[A-D,F-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?!\w)/g;
                 
                 let letraFormatada = letra.replace(regexAcordes, "<b>$1</b>");
 
@@ -81,7 +82,6 @@
 
                 const linhaIndice = `{ "num": "${identificadorUnico}", "titulo": "${titulo}" },`;
 
-                // Garante que os IDs existem antes de preencher
                 const saidaJSON = document.getElementById('jsonSaida');
                 const saidaLinha = document.getElementById('linhaDados');
                 const labelArquivo = document.getElementById('labelNomeArquivo');
