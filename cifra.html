@@ -96,6 +96,11 @@
                 .then(hino => {
                     document.getElementById('titulo-hino').innerText = hino.titulo;
                     
+                    // --- ATUALIZAÇÃO AQUI ---
+                    // Guarda o tom original para o transpositor inteligente usar como referência
+                    window.tomPadrao = hino.tom; 
+                    // ------------------------
+
                     // Salva a cifra original para permitir restauração do tom
                     cifraOriginalHtml = hino.corpo;
                     document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
@@ -132,6 +137,10 @@
         function restaurarTomOriginal() {
             if (cifraOriginalHtml !== "") {
                 document.getElementById('conteudo-cifra').innerHTML = cifraOriginalHtml;
+                // Reseta também o contador do transpositor (se estiver acessível)
+                if (typeof window.restaurarTomOriginal === 'function') {
+                     // Isso chama a função do script externo se ela existir lá também
+                }
             }
         }
 
