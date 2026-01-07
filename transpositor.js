@@ -1,4 +1,4 @@
-// transpositor.js - Versão Inteligente (Sustenidos e Bemóis)
+// transpositor.js - Versão Corrigida (Baixos Invertidos + Tabelas Inteligentes)
 
 // Tabelas cromáticas completas
 const notasSustenido = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -19,56 +19,67 @@ function restaurarTomOriginal() {
 }
 
 function atualizarCifra() {
-    // Se não tivermos o HTML original salvo, não fazemos nada (segurança)
+    // Se não tivermos o HTML original salvo, não fazemos nada
     if (typeof cifraOriginalHtml === 'undefined' || cifraOriginalHtml === "") return;
 
-    // Define o tom original (se não estiver definido no window, assume C)
+    // Define o tom original
     let tomBase = window.tomPadrao || "C";
     
-    // 1. Descobrir qual será o NOVO TOM PRINCIPAL da música
+    // 1. Descobrir qual será o NOVO TOM PRINCIPAL
     let indexTomOriginal = obterIndexNota(tomBase);
     let indexNovoTom = (indexTomOriginal + semitonsAcumulados) % 12;
     if (indexNovoTom < 0) indexNovoTom += 12;
 
-    // 2. Decidir se usamos a tabela de SUSTENIDOS ou BEMÓIS baseado nas suas planilhas
-    // Mapeamento baseado nas colunas "Maior" das suas tabelas:
-    // Sustenidos: C(0), G(7), D(2), A(9), E(4), B(11) -> Usam escala Sustenido
-    // Bemóis: F(5), Bb(10), Eb(3), Ab(8), Db(1), Gb(6), Cb(11-raro) -> Usam escala Bemol
-    
-    // Lista de índices que OBRIGATORIAMENTE usam Bemóis (F, Bb, Eb, Ab, Db, Gb)
+    // 2. Decidir se usamos Sustenidos ou Bemóis (Baseado na sua tabela)
+    // F(5), Bb(10), Eb(3), Ab(8), Db(1), Gb(6) -> Preferem Bemóis
     const indicesPreferemBemol = [5, 10, 3, 8, 1, 6]; 
-    
     let usarBemol = indicesPreferemBemol.includes(indexNovoTom);
 
-    // Seleciona a escala correta para aplicar em TODOS os acordes
+    // Seleciona a escala correta
     const escalaDestino = usarBemol ? notasBemol : notasSustenido;
 
-    // 3. Processar a substituição no texto original
-    // Regex que captura acordes, baixos e extensões
-    const regexAcordes = /<b>([A-G][#b]?)(.*?)<\/b>/g;
+    // 3. REGEX CORRIGIDA: Captura TUDO dentro do <b>
+    const regexAcordesHTML = /<b>(.*?)<\/b>/g;
 
-    let novaCifra = cifraOriginalHtml.replace(regexAcordes, function(match, nota, resto) {
+    let novaCifra = cifraOriginalHtml.replace(regexAcordesHTML, function(match, conteudoAcorde) {
         
-        // Separa o acorde de possíveis baixos invertidos (ex: G/B)
-        let partes = nota.split('/');
-        let notaPrincipal = partes[0];
-        let notaBaixo = partes.length > 1 ? partes[1] : null;
+        // Exemplo: conteudoAcorde = "F7M/C" ou "G/B"
+        
+        // 1. Divide na barra do baixo
+        let partes = conteudoAcorde.split('/');
+        let parteRaiz = partes[0]; // "F7M" ou "G"
+        let parteBaixo = partes.length > 1 ? partes[1] : null; // "C" ou "B"
 
-        // Transpõe a nota principal
-        let novaPrincipal = transporNotaIndividual(notaPrincipal, semitonsAcumulados, escalaDestino);
+        // 2. Processa a nota Principal (separando da extensão)
+        // Regex: Pega a nota (A-G e #/b) e guarda o resto (m, 7, M, etc)
+        let matchRaiz = parteRaiz.match(/^([A-G][#b]?)(.*)$/);
         
-        // Transpõe o baixo se existir
-        let novoBaixo = "";
-        if (notaBaixo) {
-            // Verifica se o baixo é uma nota válida antes de tentar transpor
-            if (obterIndexNota(notaBaixo) !== -1) {
-                novoBaixo = "/" + transporNotaIndividual(notaBaixo, semitonsAcumulados, escalaDestino);
+        if (!matchRaiz) return match; // Se não for nota válida, devolve sem mexer
+
+        let notaRaiz = matchRaiz[1];     // Ex: "F"
+        let extensaoRaiz = matchRaiz[2]; // Ex: "7M"
+
+        let novaRaiz = transporNotaIndividual(notaRaiz, semitonsAcumulados, escalaDestino);
+
+        // 3. Processa o Baixo (se existir)
+        let novoBaixoStr = "";
+        if (parteBaixo) {
+            // O baixo também pode ter acidentes (ex: /C#)
+            let matchBaixo = parteBaixo.match(/^([A-G][#b]?)(.*)$/);
+            
+            if (matchBaixo) {
+                let notaBaixo = matchBaixo[1];
+                let extensaoBaixo = matchBaixo[2]; // Raro em baixo, mas mantemos
+                let novoBaixoNota = transporNotaIndividual(notaBaixo, semitonsAcumulados, escalaDestino);
+                novoBaixoStr = "/" + novoBaixoNota + extensaoBaixo;
             } else {
-                novoBaixo = "/" + notaBaixo; // Mantém original se não for nota (raro)
+                // Se o baixo não for uma nota reconhecida, mantemos igual
+                novoBaixoStr = "/" + parteBaixo;
             }
         }
 
-        return `<b>${novaPrincipal}${novoBaixo}${resto}</b>`;
+        // Remonta o acorde
+        return `<b>${novaRaiz}${extensaoRaiz}${novoBaixoStr}</b>`;
     });
 
     // 4. Atualiza a tela
@@ -86,14 +97,11 @@ function transporNotaIndividual(nota, delta, escalaEscolhida) {
     return escalaEscolhida[novoIndex];
 }
 
-// Função para descobrir o número da nota (0 a 11) independente se é # ou b
+// Função para descobrir o número da nota (0 a 11)
 function obterIndexNota(nota) {
-    // Normaliza para buscar nas listas
     if (notasSustenido.includes(nota)) return notasSustenido.indexOf(nota);
     if (notasBemol.includes(nota)) return notasBemol.indexOf(nota);
     
-    // Tratamento de casos especiais ou erros de digitação comuns
-    // Ex: Cb = B (11), E# = F (5) - Opcional, mas ajuda na robustez
     const mapaEspecial = { "Cb": 11, "B#": 0, "Fb": 4, "E#": 5 };
     if (mapaEspecial[nota] !== undefined) return mapaEspecial[nota];
 
