@@ -25,6 +25,14 @@
             color: #333;
         }
         b { color: #004a8d; font-weight: bold; } /* Cor dos acordes */
+
+        /* ESTILO PARA NOTAS DE TENSÃO / EMBELEZAMENTO */
+        .num-ext {
+            color: #e67e22; /* Laranja */
+            font-size: 0.85em; /* Um tamanho menor */
+            font-weight: bold;
+            margin-left: 1px;
+        }
         
         .controles-cifra {
             display: flex;
@@ -104,10 +112,8 @@
                 .then(hino => {
                     document.getElementById('titulo-hino').innerText = hino.titulo;
                     
-                    // Guarda o tom original para o transpositor inteligente usar como referência
                     window.tomPadrao = hino.tom; 
                     
-                    // Salva a cifra original para permitir restauração do tom
                     cifraOriginalHtml = hino.corpo;
                     document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
 
@@ -139,35 +145,30 @@
                 });
         }
 
-        // Função para restaurar o tom original do arquivo
         function restaurarTomOriginal() {
             if (cifraOriginalHtml !== "") {
-                // A restauração agora depende do transpositor.js para resetar a variável interna
                 if (typeof window.restaurarTomOriginal === 'function') {
                      window.restaurarTomOriginal();
                 } else {
-                     // Fallback caso o script não tenha carregado
                      document.getElementById('conteudo-cifra').innerHTML = cifraOriginalHtml;
                 }
             }
         }
 
-        // Função para alternar entre Graus e Acordes
         function alternarGraus() {
             window.exibindoGraus = !window.exibindoGraus;
             
             const btn = document.getElementById('btnGrau');
             if (window.exibindoGraus) {
                 btn.innerHTML = '<i class="fa fa-music"></i> Ver Acordes';
-                btn.style.background = "#ffeeba"; // Destaque Amarelo
+                btn.style.background = "#ffeeba"; 
                 btn.style.borderColor = "#ffc107";
             } else {
                 btn.innerHTML = '<i class="fa fa-list-ol"></i> Ver Graus';
-                btn.style.background = "#e2e6ea"; // Cinza padrão
+                btn.style.background = "#e2e6ea"; 
                 btn.style.borderColor = "#ccc";
             }
 
-            // Chama o transpositor para renderizar novamente com a nova configuração
             if (typeof atualizarCifra === 'function') {
                 atualizarCifra();
             }
