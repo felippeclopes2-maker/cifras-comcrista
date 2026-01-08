@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Cifra - ICM</title>
+    <title>Visualizar Cifra</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -39,6 +39,7 @@
             padding: 8px 15px;
             cursor: pointer;
             border-radius: 5px;
+            transition: all 0.3s;
         }
     </style>
 </head>
@@ -57,6 +58,10 @@
             <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-music"></i> -1 Tom</button>
             <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-music"></i> +1 Tom</button>
             
+            <button class="btn-acao" id="btnGrau" onclick="alternarGraus()" style="background: #e2e6ea; color: #333;">
+                <i class="fa fa-list-ol"></i> Ver Graus
+            </button>
+
             <button class="btn-acao" onclick="mudarFonte(1)"><i class="fa fa-plus"></i> Fonte</button>
             <button class="btn-acao" onclick="mudarFonte(-1)"><i class="fa fa-minus"></i> Fonte</button>
 
@@ -83,6 +88,9 @@
     <script>
         // Variável para armazenar o estado original da cifra (tom padrão)
         let cifraOriginalHtml = "";
+        
+        // Variável de controle para saber se mostramos Graus ou Acordes
+        window.exibindoGraus = false;
 
         const urlParams = new URLSearchParams(window.location.search);
         const numeroHino = urlParams.get('hino');
@@ -96,11 +104,9 @@
                 .then(hino => {
                     document.getElementById('titulo-hino').innerText = hino.titulo;
                     
-                    // --- ATUALIZAÇÃO AQUI ---
                     // Guarda o tom original para o transpositor inteligente usar como referência
                     window.tomPadrao = hino.tom; 
-                    // ------------------------
-
+                    
                     // Salva a cifra original para permitir restauração do tom
                     cifraOriginalHtml = hino.corpo;
                     document.getElementById('conteudo-cifra').innerHTML = hino.corpo;
@@ -136,11 +142,34 @@
         // Função para restaurar o tom original do arquivo
         function restaurarTomOriginal() {
             if (cifraOriginalHtml !== "") {
-                document.getElementById('conteudo-cifra').innerHTML = cifraOriginalHtml;
-                // Reseta também o contador do transpositor (se estiver acessível)
+                // A restauração agora depende do transpositor.js para resetar a variável interna
                 if (typeof window.restaurarTomOriginal === 'function') {
-                     // Isso chama a função do script externo se ela existir lá também
+                     window.restaurarTomOriginal();
+                } else {
+                     // Fallback caso o script não tenha carregado
+                     document.getElementById('conteudo-cifra').innerHTML = cifraOriginalHtml;
                 }
+            }
+        }
+
+        // Função para alternar entre Graus e Acordes
+        function alternarGraus() {
+            window.exibindoGraus = !window.exibindoGraus;
+            
+            const btn = document.getElementById('btnGrau');
+            if (window.exibindoGraus) {
+                btn.innerHTML = '<i class="fa fa-music"></i> Ver Acordes';
+                btn.style.background = "#ffeeba"; // Destaque Amarelo
+                btn.style.borderColor = "#ffc107";
+            } else {
+                btn.innerHTML = '<i class="fa fa-list-ol"></i> Ver Graus';
+                btn.style.background = "#e2e6ea"; // Cinza padrão
+                btn.style.borderColor = "#ccc";
+            }
+
+            // Chama o transpositor para renderizar novamente com a nova configuração
+            if (typeof atualizarCifra === 'function') {
+                atualizarCifra();
             }
         }
 
@@ -154,7 +183,7 @@
         function compartilharWhatsApp() {
             const tituloHino = document.getElementById('titulo-hino').innerText;
             const urlCifra = window.location.href;
-            const textoMensagem = `🎸 *Cifra ICM*\n🎵 Louvor: *${tituloHino}*\n\nVeja a cifra aqui:\n${urlCifra}`;
+            const textoMensagem = `🎸 *Cifra*\n🎵 Louvor: *${tituloHino}*\n\nVeja a cifra aqui:\n${urlCifra}`;
             const linkFinal = "https://wa.me/?text=" + encodeURIComponent(textoMensagem);
             
             try {
