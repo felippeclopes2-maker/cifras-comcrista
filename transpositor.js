@@ -1,4 +1,4 @@
-// transpositor.js - Versão Final: Graus, Baixos Funcionais, Cores e TABLATURAS
+// transpositor.js - Blindado para Tablaturas com ou sem negrito
 
 const notasSustenido = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const notasBemol     = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
@@ -34,49 +34,36 @@ function atualizarCifra() {
     let usarBemol = indicesPreferemBemol.includes(indexNovoTom);
     const escalaDestino = usarBemol ? notasBemol : notasSustenido;
 
-    // --- PASSO 1: Preparar o texto ---
-    // Fazemos uma cópia da cifra original para processar
     let novaCifra = cifraOriginalHtml;
 
-    // --- PASSO 2: Processar TABLATURAS (Antes dos acordes) ---
-    // Regex: Procura início de linha (^), Nota (A-G), opcional #/b, seguido de barra vertical |
-    // Ex: E|---0--- ou Eb|---
-    const regexTablatura = /^([A-Ga-g][#b]?\|)(.*)$/gm;
+    // --- PASSO 1: TABLATURAS (Blindado contra <b></b>) ---
+    // Regex flexível: Aceita "E|" OU "<b>E</b>|" no início da linha
+    const regexTablatura = /^((?:<b>)?[A-Ga-g][#b]?(?:<\/b>)?\|)(.*)$/gm;
 
     novaCifra = novaCifra.replace(regexTablatura, function(match, afinacao, corpoTab) {
-        // 'afinacao' é a parte fixa (Ex: "E|")
-        // 'corpoTab' é o restante da linha (Ex: "---7---8---")
+        // Remove tags HTML da afinação para garantir que não quebre visualmente
+        let afinacaoLimpa = afinacao; //.replace(/<\/?b>/g, ""); 
         
-        // Substitui apenas os números dentro da linha da tablatura
         let corpoTransposto = corpoTab.replace(/\d+/g, function(numero) {
             let novoNum = parseInt(numero) + semitonsAcumulados;
-            
-            // Lógica de segurança: Se o traste ficar negativo (ex: corda solta 0 descendo tom),
-            // somamos 12 para jogar uma oitava acima e manter tocável, ou mantemos 0 se preferir.
-            // Aqui optamos por jogar para a oitava superior se ficar negativo.
-            if (novoNum < 0) novoNum += 12; 
-            
+            if (novoNum < 0) novoNum += 12; // Evita traste negativo
             return novoNum;
         });
 
-        return afinacao + corpoTransposto;
+        return afinacaoLimpa + corpoTransposto;
     });
 
-    // --- PASSO 3: Processar ACORDES ---
-    // ATENÇÃO: Adicionei '|' no final do regex para IGNORAR o que for tablatura
-    // (?![a-z|]) impede que E| seja lido como acorde E
+    // --- PASSO 2: ACORDES ---
+    // Ignora o que for tablatura (seguido de |)
     const regexAcordesHTML = /<b>(.*?)<\/b>|\b(Em(?!\s[a-zçáéíóúà])|[A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?![a-z0-9|])/g;
-
-    // Se o texto original já tiver tags <b> (do admin), usamos o regex simples.
-    // Se for texto puro, usamos o regex complexo acima.
-    // Para simplificar, assumimos que seu JSON já vem com <b> nos acordes ou usamos a lógica mista.
     
-    // Como seu Admin já coloca <b>, vamos focar em substituir o que está dentro de <b>
-    // Mas se houver tablaturas, elas não terão <b>, então passarão ilesas.
-    
+    // Focamos apenas no que está dentro de <b> que NÃO seja tablatura
     const regexApenasAcordesJaFormatados = /<b>(.*?)<\/b>/g;
 
     novaCifra = novaCifra.replace(regexApenasAcordesJaFormatados, function(match, conteudoAcorde) {
+        // Se o conteúdo tiver "|", é tablatura que passou despercebida, ignoramos
+        if (conteudoAcorde.includes('|')) return match;
+
         let partes = conteudoAcorde.split('/');
         let parteRaiz = partes[0]; 
         let parteBaixo = partes.length > 1 ? partes[1] : null;
