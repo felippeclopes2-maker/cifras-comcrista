@@ -5,6 +5,7 @@ const coletanea = {
         { "num": "Um Novo Dia - Get Worship", "titulo": "Um Novo Dia" },
         { "num": "Me Ama - Diante do Trono", "titulo": "Me Ama" },
         { "num": "Dono da minha afeicao - FHOP", "titulo": "Dono da minha afeição" },
-        { "num": "Santo Pra Sempre - Gabriel Guedes", "titulo": "Santo Pra Sempre" }
+        { "num": "Santo Pra Sempre - Gabriel Guedes", "titulo": "Santo Pra Sempre - Gabriel Guedes (As muitas gerações rendidas em louvor)" }
     ]
 };
+
