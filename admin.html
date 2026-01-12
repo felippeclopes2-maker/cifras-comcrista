@@ -14,14 +14,26 @@
         .btn-gerar { background: #28a745; color: white; padding: 15px; border: none; width: 100%; cursor: pointer; font-size: 1.1rem; border-radius: 4px; font-weight: bold; transition: background 0.3s; }
         .btn-gerar:hover { background: #218838; }
         .copy-btn { position: absolute; right: 10px; top: 10px; background: #004a8d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
+        
+        /* Estilo da Área de Upload */
+        .upload-area { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 2px dashed #ced4da; text-align: center; }
+        .btn-carregar { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        .btn-carregar:hover { background: #0056b3; }
+
         pre { white-space: pre-wrap; word-wrap: break-word; margin: 0; font-size: 0.9rem; color: #333; }
         h3 { margin-bottom: 5px; color: #333; border-left: 4px solid #004a8d; padding-left: 10px; }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <h2>Gerador de Cifras (Inteligente)</h2>
+        <h2>Gerador e Editor de Cifras</h2>
         
+        <div class="upload-area">
+            <span style="font-weight: bold; color: #555;">Editar arquivo existente:</span>
+            <input type="file" id="fileInput" accept=".json" style="margin-left: 10px;">
+            <button class="btn-carregar" onclick="carregarArquivo()">Ler Arquivo</button>
+        </div>
+
         <div class="controles">
             <input type="text" id="admTitulo" placeholder="Título do Louvor">
             <input type="text" id="admArtista" placeholder="Artista/Autor">
@@ -52,6 +64,38 @@
     </div>
 
     <script>
+        // --- NOVA FUNÇÃO: Ler arquivo JSON e preencher os campos ---
+        function carregarArquivo() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Por favor, selecione um arquivo .json primeiro.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+
+                    // Preenche os inputs
+                    document.getElementById('admTitulo').value = json.titulo || "";
+                    document.getElementById('admArtista').value = json.artista || "";
+                    document.getElementById('admTom').value = json.tom || "";
+
+                    // Limpa as tags <b></b> para permitir edição limpa
+                    let corpoLimpo = json.corpo.replace(/<\/?b>/g, "");
+                    document.getElementById('admLetra').value = corpoLimpo;
+
+                    alert("Arquivo carregado com sucesso! Agora você pode editar e gerar novamente.");
+                } catch (erro) {
+                    alert("Erro ao ler o arquivo JSON: " + erro.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function gerarJSON() {
             try {
                 const titulo = document.getElementById('admTitulo').value.trim();
@@ -66,10 +110,10 @@
 
                 const identificadorUnico = `${titulo} - ${artista}`;
 
-                // REGEX MELHORADA: 
-                // Exceção para "Em" seguido de letra minúscula (início de frase)
-                // Protege "Em espírito", "Em verdade", etc.
-                const regexAcordes = /\b(Em(?!\s[a-zçáéíóúà])|[A-D,F-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?!\w)/g;
+                // --- REGEX ATUALIZADA (CORREÇÃO DE TABLATURAS E "EM") ---
+                // 1. (Em(?!\s[a-z...])) -> Protege "Em" de início de frase.
+                // 2. (?![a-z0-9|]) -> O Pulo do Gato: Não marca como acorde se tiver barra vertical (|) depois.
+                const regexAcordes = /\b(Em(?!\s[a-zçáéíóúà])|[A-D,F-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?![a-z0-9|])/g;
                 
                 let letraFormatada = letra.replace(regexAcordes, "<b>$1</b>");
 
