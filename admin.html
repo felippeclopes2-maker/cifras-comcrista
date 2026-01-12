@@ -64,35 +64,52 @@
     </div>
 
     <script>
-        // --- Função: Ler arquivo JSON e preencher os campos ---
+        // --- FUNÇÃO CORRIGIDA E BLINDADA ---
         function carregarArquivo() {
             const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert("Por favor, selecione um arquivo .json primeiro.");
+            
+            // Verificação básica se o input existe
+            if (!fileInput || !fileInput.files.length) {
+                alert("Por favor, selecione um arquivo .json clicando em 'Escolher arquivo' primeiro.");
                 return;
             }
 
+            const file = fileInput.files[0];
             const reader = new FileReader();
+
             reader.onload = function(e) {
                 try {
                     const json = JSON.parse(e.target.result);
+                    console.log("Arquivo lido:", json); // Para debug no console
 
-                    // Preenche os inputs
+                    // Preenche os inputs (com proteção contra valores vazios)
                     document.getElementById('admTitulo').value = json.titulo || "";
                     document.getElementById('admArtista').value = json.artista || "";
                     document.getElementById('admTom').value = json.tom || "";
 
-                    // Limpa as tags <b></b> para permitir edição limpa
-                    let corpoLimpo = json.corpo.replace(/<\/?b>/g, "");
+                    // Limpeza do corpo da cifra
+                    let corpoOriginal = json.corpo || ""; // Protege se o campo 'corpo' não existir
+                    
+                    // 1. Remove tags <b> e </b>
+                    let corpoLimpo = corpoOriginal.replace(/<\/?b>/g, "");
+                    
+                    // 2. Remove as tags <span> e </span> (usadas para cor laranja)
+                    // A regex abaixo remove <span class="..."> e também </span>
+                    corpoLimpo = corpoLimpo.replace(/<\/?span[^>]*>/g, "");
+
                     document.getElementById('admLetra').value = corpoLimpo;
 
-                    alert("Arquivo carregado com sucesso! Agora você pode editar e gerar novamente.");
+                    alert("Arquivo carregado com sucesso! Tags de formatação foram removidas para edição.");
                 } catch (erro) {
-                    alert("Erro ao ler o arquivo JSON: " + erro.message);
+                    console.error(erro);
+                    alert("Erro ao ler o arquivo JSON. Verifique se o arquivo é válido.\nDetalhe: " + erro.message);
                 }
             };
+            
+            reader.onerror = function() {
+                alert("Erro ao tentar ler o arquivo do disco.");
+            };
+
             reader.readAsText(file);
         }
 
@@ -110,10 +127,10 @@
 
                 const identificadorUnico = `${titulo} - ${artista}`;
 
-                // --- REGEX CORRIGIDA ---
-                // Aceita TODOS os acordes (A-G), incluindo extensões e baixo,
-                // mas ignora "Em" se for preposição (seguido de letra minúscula)
-                // e ignora se for tablatura (seguido de | ou número colado).
+                // --- REGEX ATUALIZADA ---
+                // 1. Ignora "Em" se for texto (ex: Em espírito)
+                // 2. Captura acordes A-G (incluindo E, Em, Ebm)
+                // 3. Ignora se for tablatura (se tiver barra vertical | logo depois)
                 const regexAcordes = /\b(?!(?:Em|em)\s+[a-zçáéíóúà])([A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M|o)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?![a-z0-9|])/g;
                 
                 let letraFormatada = letra.replace(regexAcordes, "<b>$1</b>");
