@@ -64,11 +64,9 @@
     </div>
 
     <script>
-        // --- FUNÇÃO CORRIGIDA E BLINDADA ---
         function carregarArquivo() {
             const fileInput = document.getElementById('fileInput');
             
-            // Verificação básica se o input existe
             if (!fileInput || !fileInput.files.length) {
                 alert("Por favor, selecione um arquivo .json clicando em 'Escolher arquivo' primeiro.");
                 return;
@@ -80,36 +78,24 @@
             reader.onload = function(e) {
                 try {
                     const json = JSON.parse(e.target.result);
-                    console.log("Arquivo lido:", json); // Para debug no console
 
-                    // Preenche os inputs (com proteção contra valores vazios)
                     document.getElementById('admTitulo').value = json.titulo || "";
                     document.getElementById('admArtista').value = json.artista || "";
                     document.getElementById('admTom').value = json.tom || "";
 
-                    // Limpeza do corpo da cifra
-                    let corpoOriginal = json.corpo || ""; // Protege se o campo 'corpo' não existir
-                    
-                    // 1. Remove tags <b> e </b>
+                    let corpoOriginal = json.corpo || ""; 
                     let corpoLimpo = corpoOriginal.replace(/<\/?b>/g, "");
-                    
-                    // 2. Remove as tags <span> e </span> (usadas para cor laranja)
-                    // A regex abaixo remove <span class="..."> e também </span>
                     corpoLimpo = corpoLimpo.replace(/<\/?span[^>]*>/g, "");
 
                     document.getElementById('admLetra').value = corpoLimpo;
 
-                    alert("Arquivo carregado com sucesso! Tags de formatação foram removidas para edição.");
+                    alert("Arquivo carregado com sucesso!");
                 } catch (erro) {
                     console.error(erro);
-                    alert("Erro ao ler o arquivo JSON. Verifique se o arquivo é válido.\nDetalhe: " + erro.message);
+                    alert("Erro ao ler o arquivo JSON: " + erro.message);
                 }
             };
             
-            reader.onerror = function() {
-                alert("Erro ao tentar ler o arquivo do disco.");
-            };
-
             reader.readAsText(file);
         }
 
@@ -127,11 +113,17 @@
 
                 const identificadorUnico = `${titulo} - ${artista}`;
 
-                // --- REGEX ATUALIZADA ---
-                // 1. Ignora "Em" se for texto (ex: Em espírito)
-                // 2. Captura acordes A-G (incluindo E, Em, Ebm)
-                // 3. Ignora se for tablatura (se tiver barra vertical | logo depois)
-                const regexAcordes = /\b(?!(?:Em|em)\s+[a-zçáéíóúà])([A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M|o)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?![a-z0-9|])/g;
+                // --- REGEX REFINADA E BLINDADA ---
+                // 1. (?!(?:Em|em|E|A)\s+[a-zçáéíóúà]) -> FILTRO DE PORTUGUÊS: 
+                //    Ignora "Em", "em", "E" e "A" se vierem seguidos de espaço + letra minúscula.
+                //    Isso protege: "E os...", "A casa...", "Em espírito..."
+                
+                // 2. ([A-G]...) -> Captura os acordes reais.
+                
+                // 3. (?![a-z0-9|]) -> FILTRO DE TABLATURA/PALAVRA: 
+                //    Ignora se tiver barra vertical (|) ou for parte de palavra.
+                
+                const regexAcordes = /\b(?!(?:Em|em|E|A)\s+[a-zçáéíóúà])([A-G][#b]?(?:m|maj|dim|aug|sus|add|7M|M|o)?(?:\d{1,2})?(?:maj|M|min|7M)?(?:\/[A-G][#b]?)?)(?![a-z0-9|])/g;
                 
                 let letraFormatada = letra.replace(regexAcordes, "<b>$1</b>");
 
