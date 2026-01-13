@@ -9,14 +9,23 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="logo">CIFRAS <span>Comunidade Cristã em Conselheiro Paulino</span></div>
-</nav>
+    <nav class="navbar">
+        <div class="logo">CIFRAS <span>Comunidade Cristã em Conselheiro Paulino</span></div>
+    </nav>
 
     <section class="search-container">
         <div class="search-box">
             <i class="fa fa-search"></i>
             <input type="text" id="inputBusca" placeholder="Pesquisar por número ou título...">
+        </div>
+
+        <div class="controles-fav">
+            <button class="btn-fav btn-ver-fav" id="btnFiltrarFav" onclick="alternarModoFavoritos()">
+                <i class="fa fa-star"></i> Ver Repertório (<span id="contadorFav">0</span>)
+            </button>
+            <button class="btn-fav btn-limpar-fav" onclick="limparFavoritos()">
+                <i class="fa fa-trash"></i> Limpar
+            </button>
         </div>
     </section>
 
@@ -28,7 +37,4 @@
     <script src="dados.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
-
-
