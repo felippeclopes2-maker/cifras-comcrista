@@ -39,6 +39,9 @@ body {
     padding: 2rem 5%;
     display: flex;
     justify-content: center;
+    flex-direction: column; /* Ajuste para permitir botões abaixo da busca */
+    align-items: center;
+    gap: 15px;
 }
 
 .search-box {
@@ -76,6 +79,10 @@ body {
     cursor: pointer;
     transition: transform 0.2s;
     border-left: 5px solid var(--primary);
+    
+    /* ESSENCIAL PARA A ESTRELA: */
+    position: relative; 
+    padding-right: 40px; /* Garante que o texto não fique embaixo da estrela */
 }
 
 .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -88,10 +95,96 @@ body {
     min-width: 40px;
 }
 
-
 .card .title { font-weight: 500; font-size: 1rem; }
 
 .btn-acao[onclick="compartilharWhatsApp()"]:hover {
     background-color: #128c7e !important;
     transform: scale(1.05);
+}
+
+/* --- NOVO: ESTILOS DOS FAVORITOS (SETLIST) --- */
+
+/* A Estrelinha dentro do Card */
+.star-icon {
+    position: absolute;
+    top: 50%; /* Centraliza verticalmente */
+    transform: translateY(-50%);
+    right: 15px;
+    font-size: 1.3rem;
+    color: #ddd; /* Cinza claro quando inativo */
+    cursor: pointer;
+    z-index: 10; /* Fica acima do clique do card */
+    transition: all 0.2s;
+    padding: 5px; /* Aumenta a área de toque */
+}
+
+.star-icon:hover {
+    color: #bbb;
+    transform: translateY(-50%) scale(1.2);
+}
+
+/* Quando marcado como favorito */
+.star-icon.active {
+    color: #ffc107; /* Amarelo Ouro */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.star-icon.active:hover {
+    color: #e0a800;
+}
+
+/* Botões de Controle (Abaixo da busca) */
+.controles-fav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 600px;
+}
+
+.btn-fav {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px; /* Borda arredondada combinando com a busca */
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-ver-fav {
+    background-color: white;
+    color: #555;
+    border: 1px solid #ddd;
+}
+
+.btn-ver-fav:hover {
+    background-color: #f8f9fa;
+    border-color: #ffc107;
+    color: #333;
+}
+
+/* Estilo quando o botão "Ver Repertório" está ativado */
+.btn-ver-fav.ativo {
+    background-color: #ffc107;
+    color: #333;
+    border-color: #e0a800;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-limpar-fav {
+    background-color: #fff;
+    color: #dc3545;
+    border: 1px solid #f5c6cb;
+}
+
+.btn-limpar-fav:hover {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
 }
