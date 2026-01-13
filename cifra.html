@@ -20,15 +20,23 @@
             max-width: 800px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            
+            /* Garante rolagem lateral se a fonte for muito grande no mobile */
+            overflow-x: auto; 
         }
+
         pre {
             font-family: 'Courier New', Courier, monospace;
             font-size: 1.1rem;
-            line-height: 1.6;
+            
+            /* AQUI ESTÁ A CORREÇÃO DO ESPAÇAMENTO: */
+            line-height: 2.3; /* Aumentado para evitar sobreposição */
+            
             white-space: pre-wrap;
             word-wrap: break-word;
             color: #333;
         }
+
         b { color: #004a8d; font-weight: bold; } /* Cor dos acordes */
 
         /* ESTILO PARA NOTAS DE TENSÃO / EMBELEZAMENTO */
@@ -37,9 +45,12 @@
             font-size: 0.85em; /* Um tamanho menor */
             font-weight: bold;
             margin-left: 1px;
+            
+            /* Garante alinhamento correto na linha */
+            vertical-align: baseline;
         }
         
-        /* --- MENU FLUTUANTE / FIXO (ATUALIZADO) --- */
+        /* --- MENU FLUTUANTE / FIXO --- */
         .controles-cifra {
             display: flex;
             gap: 10px;
@@ -47,39 +58,37 @@
             justify-content: center;
             flex-wrap: wrap;
 
-            /* O SEGREDO DO MENU FIXO: */
+            /* MENU FIXO NO TOPO */
             position: sticky; 
             top: 0; 
-            z-index: 1000; /* Garante que fique acima da cifra */
+            z-index: 1000; 
             
-            /* Visual do menu fixo */
-            background-color: #f4f7f9; /* Fundo cinza claro para não misturar com o texto */
+            background-color: #f4f7f9; 
             padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra para destacar do fundo */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
             border-bottom: 1px solid #ccc;
             
-            /* Ajustes de layout */
             margin-left: -15px; 
             margin-right: -15px;
             border-radius: 0 0 8px 8px;
         }
 
         .btn-acao {
-            background: #fff; /* Fundo branco para destacar no menu cinza */
+            background: #fff; 
             border: 1px solid #ccc;
             padding: 8px 15px;
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.2s;
-            box-shadow: 0 2px 2px rgba(0,0,0,0.05); /* Leve sombra nos botões */
+            box-shadow: 0 2px 2px rgba(0,0,0,0.05); 
         }
         
         .btn-acao:hover {
-            transform: translateY(-1px); /* Leve subida ao passar o mouse */
+            transform: translateY(-1px); 
             box-shadow: 0 4px 4px rgba(0,0,0,0.1);
         }
 
-        /* Ajuste para mobile - Botões ficam mais fáceis de tocar */
+        /* Ajuste para mobile */
         @media (max-width: 600px) {
             .controles-cifra {
                 padding: 10px 5px;
@@ -87,7 +96,7 @@
             .btn-acao {
                 padding: 8px 6px;
                 font-size: 0.85rem;
-                flex-grow: 1; /* Botões esticam para preencher espaço */
+                flex-grow: 1; 
                 text-align: center;
             }
         }
