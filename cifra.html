@@ -15,59 +15,62 @@
         /* Estilos específicos para a visualização da cifra */
         .cifra-container {
             background: white;
-            padding: 30px;
+            padding: 15px 20px; /* Reduzi um pouco o padding lateral para ganhar espaço no mobile */
             margin: 20px auto;
-            max-width: 800px;
+            max-width: 900px; /* Aumentei um pouco a largura máxima */
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             
-            /* Garante rolagem lateral se a fonte for muito grande no mobile */
+            /* ESSENCIAL: Permite rolar para o lado se a linha for muito longa, 
+               em vez de quebrar a linha e bagunçar os acordes */
             overflow-x: auto; 
         }
 
         pre {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 1.1rem;
             
-            /* AQUI ESTÁ A CORREÇÃO DO ESPAÇAMENTO: */
-            line-height: 2.3; /* Aumentado para evitar sobreposição */
+            /* --- CORREÇÃO DO "CERTO" vs "ERRADO" --- */
             
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            /* 1. Espaçamento compacto (igual ao print "CERTO") */
+            line-height: 1.5; 
+            
+            /* 2. Impede que a linha quebre e o acorde caia em cima da letra de baixo */
+            white-space: pre; 
+            
+            /* 3. TAMANHO INTELIGENTE (Responsivo Automático) */
+            /* clamp(mínimo, ideal, máximo) -> 
+               No celular fica ~12px/13px, no PC fica até 18px. 
+               O '2.5vw' faz a fonte crescer junto com a largura da tela. */
+            font-size: clamp(12px, 2.5vw, 17px);
+            
             color: #333;
+            margin: 0; /* Remove margens extras */
         }
 
-        b { color: #004a8d; font-weight: bold; } /* Cor dos acordes */
+        b { color: #004a8d; font-weight: bold; }
 
         /* ESTILO PARA NOTAS DE TENSÃO / EMBELEZAMENTO */
         .num-ext {
-            color: #e67e22; /* Laranja */
-            font-size: 0.85em; /* Um tamanho menor */
+            color: #e67e22; 
+            font-size: 0.8em; 
             font-weight: bold;
-            margin-left: 1px;
-            
-            /* Garante alinhamento correto na linha */
-            vertical-align: baseline;
+            vertical-align: top; /* Ajuste fino para não alterar a altura da linha */
         }
         
-        /* --- MENU FLUTUANTE / FIXO --- */
+        /* --- MENU FLUTUANTE --- */
         .controles-cifra {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
             justify-content: center;
             flex-wrap: wrap;
-
-            /* MENU FIXO NO TOPO */
             position: sticky; 
             top: 0; 
             z-index: 1000; 
-            
             background-color: #f4f7f9; 
-            padding: 15px;
+            padding: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
             border-bottom: 1px solid #ccc;
-            
             margin-left: -15px; 
             margin-right: -15px;
             border-radius: 0 0 8px 8px;
@@ -76,11 +79,12 @@
         .btn-acao {
             background: #fff; 
             border: 1px solid #ccc;
-            padding: 8px 15px;
+            padding: 8px 12px;
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.2s;
             box-shadow: 0 2px 2px rgba(0,0,0,0.05); 
+            font-size: 0.9rem; /* Tamanho base do botão */
         }
         
         .btn-acao:hover {
@@ -88,16 +92,20 @@
             box-shadow: 0 4px 4px rgba(0,0,0,0.1);
         }
 
-        /* Ajuste para mobile */
+        /* Ajustes finos para Mobile */
         @media (max-width: 600px) {
-            .controles-cifra {
-                padding: 10px 5px;
+            .cifra-container {
+                padding: 15px; /* Menos borda no celular */
             }
             .btn-acao {
-                padding: 8px 6px;
-                font-size: 0.85rem;
+                padding: 8px 5px;
+                font-size: 0.8rem;
                 flex-grow: 1; 
                 text-align: center;
+            }
+            /* No celular, forçamos um tamanho fixo legível se o clamp ficar muito pequeno */
+            pre {
+                font-size: 13px; 
             }
         }
     </style>
@@ -114,8 +122,8 @@
             <button class="btn-acao" onclick="restaurarTomOriginal()" style="background: #e3f2fd; border-color: #004a8d; color: #004a8d;">
                 <i class="fa fa-undo"></i> Tom
             </button>
-            <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-minus"></i> Tom</button>
-            <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-plus"></i> Tom</button>
+            <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-minus"></i></button>
+            <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-plus"></i></button>
             
             <button class="btn-acao" id="btnGrau" onclick="alternarGraus()" style="background: #e2e6ea; color: #333;">
                 <i class="fa fa-list-ol"></i> Graus
@@ -229,7 +237,13 @@
             const pre = document.getElementById('conteudo-cifra');
             const style = window.getComputedStyle(pre, null).getPropertyValue('font-size');
             const fontSize = parseFloat(style); 
-            pre.style.fontSize = (fontSize + delta) + 'px';
+            
+            // Limitador simples para não explodir o layout
+            let novoTamanho = fontSize + delta;
+            if (novoTamanho < 10) novoTamanho = 10;
+            if (novoTamanho > 36) novoTamanho = 36;
+            
+            pre.style.fontSize = novoTamanho + 'px';
         }
 
         function compartilharWhatsApp() {
