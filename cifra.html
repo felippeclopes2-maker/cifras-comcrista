@@ -21,7 +21,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             
-            /* ESSENCIAL: Permite rolar para o lado se a linha for muito longa, 
+            /* Permite rolar para o lado se a linha for muito longa, 
                em vez de quebrar a linha e bagunçar os acordes */
             overflow-x: auto; 
         }
@@ -29,9 +29,8 @@
         pre {
             font-family: 'Courier New', Courier, monospace;
             
-            /* --- CORREÇÃO DO "CERTO" vs "ERRADO" --- */
             
-            /* 1. Espaçamento compacto (igual ao print "CERTO") */
+            /* 1. Espaçamento */
             line-height: 1.5; 
             
             /* 2. Impede que a linha quebre e o acorde caia em cima da letra de baixo */
@@ -92,7 +91,7 @@
             box-shadow: 0 4px 4px rgba(0,0,0,0.1);
         }
 
-        /* Ajustes finos para Mobile */
+        /* Ajustes para Mobile */
         @media (max-width: 600px) {
             .cifra-container {
                 padding: 15px; /* Menos borda no celular */
@@ -122,8 +121,8 @@
             <button class="btn-acao" onclick="restaurarTomOriginal()" style="background: #e3f2fd; border-color: #004a8d; color: #004a8d;">
                 <i class="fa fa-undo"></i> Tom
             </button>
-            <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-minus"></i></button>
-            <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-plus"></i></button>
+            <button class="btn-acao" onclick="mudarTom(-1)"><i class="fa fa-minus"></i>T</button>
+            <button class="btn-acao" onclick="mudarTom(1)"><i class="fa fa-plus"></i>T</button>
             
             <button class="btn-acao" id="btnGrau" onclick="alternarGraus()" style="background: #e2e6ea; color: #333;">
                 <i class="fa fa-list-ol"></i> Graus
@@ -263,3 +262,4 @@
     <script src="transpositor.js"></script> 
 </body>
 </html>
+
