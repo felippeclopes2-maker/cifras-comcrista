@@ -12,9 +12,10 @@ body {
     color: var(--text);
 }
 
+/* --- BARRA DE NAVEGAÇÃO --- */
 .navbar {
     background-color: var(--primary);
-    padding: 1rem 5%;
+    padding: 0.5rem 5%; /* Padding ajustado para a nova logo */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -22,7 +23,23 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
-.logo { font-size: 1.5rem; font-weight: bold; }
+.logo { 
+    font-size: 1.3rem; 
+    font-weight: bold; 
+    display: flex;       /* Alinha imagem e texto lado a lado */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 15px;           /* Espaço entre logo e texto */
+}
+
+.logo-img {
+    height: 55px;            /* Tamanho ideal para o cabeçalho */
+    width: auto;             /* Mantém a proporção */
+    border-radius: 50%;      /* Deixa redonda */
+    border: 2px solid white; /* Borda branca para destaque no azul */
+    background-color: white; /* Fundo branco caso haja transparência */
+    padding: 2px;
+}
+
 .logo span { color: var(--accent); }
 
 .menu-categorias a {
@@ -35,11 +52,12 @@ body {
 
 .menu-categorias a.active { border-bottom: 2px solid var(--accent); }
 
+/* --- ÁREA DE BUSCA --- */
 .search-container {
     padding: 2rem 5%;
     display: flex;
     justify-content: center;
-    flex-direction: column; /* Ajuste para permitir botões abaixo da busca */
+    flex-direction: column;
     align-items: center;
     gap: 15px;
 }
@@ -63,6 +81,7 @@ body {
     font-size: 1rem;
 }
 
+/* --- GRID E CARDS --- */
 .grid-louvores {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -79,10 +98,8 @@ body {
     cursor: pointer;
     transition: transform 0.2s;
     border-left: 5px solid var(--primary);
-    
-    /* ESSENCIAL PARA A ESTRELA: */
     position: relative; 
-    padding-right: 40px; /* Garante que o texto não fique embaixo da estrela */
+    padding-right: 40px;
 }
 
 .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -102,20 +119,18 @@ body {
     transform: scale(1.05);
 }
 
-/* --- NOVO: ESTILOS DOS FAVORITOS (SETLIST) --- */
-
-/* A Estrelinha dentro do Card */
+/* --- FAVORITOS (SETLIST) --- */
 .star-icon {
     position: absolute;
-    top: 50%; /* Centraliza verticalmente */
+    top: 50%;
     transform: translateY(-50%);
     right: 15px;
     font-size: 1.3rem;
-    color: #ddd; /* Cinza claro quando inativo */
+    color: #ddd;
     cursor: pointer;
-    z-index: 10; /* Fica acima do clique do card */
+    z-index: 10;
     transition: all 0.2s;
-    padding: 5px; /* Aumenta a área de toque */
+    padding: 5px;
 }
 
 .star-icon:hover {
@@ -123,9 +138,8 @@ body {
     transform: translateY(-50%) scale(1.2);
 }
 
-/* Quando marcado como favorito */
 .star-icon.active {
-    color: #ffc107; /* Amarelo Ouro */
+    color: #ffc107;
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
@@ -133,7 +147,6 @@ body {
     color: #e0a800;
 }
 
-/* Botões de Controle (Abaixo da busca) */
 .controles-fav {
     display: flex;
     justify-content: center;
@@ -146,7 +159,7 @@ body {
 .btn-fav {
     padding: 8px 16px;
     border: none;
-    border-radius: 20px; /* Borda arredondada combinando com a busca */
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.9rem;
@@ -169,7 +182,6 @@ body {
     color: #333;
 }
 
-/* Estilo quando o botão "Ver Repertório" está ativado */
 .btn-ver-fav.ativo {
     background-color: #ffc107;
     color: #333;
