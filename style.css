@@ -15,7 +15,7 @@ body {
 /* --- BARRA DE NAVEGAÇÃO --- */
 .navbar {
     background-color: var(--primary);
-    padding: 0.5rem 5%; /* Padding ajustado para a nova logo */
+    padding: 0.7rem 5%; /* Padding ajustado */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -31,13 +31,15 @@ body {
     gap: 15px;           /* Espaço entre logo e texto */
 }
 
+/* --- CLASSE NOVA PARA CORRIGIR A IMAGEM --- */
 .logo-img {
-    height: 55px;            /* Tamanho ideal para o cabeçalho */
-    width: auto;             /* Mantém a proporção */
-    border-radius: 50%;      /* Deixa redonda */
-    border: 2px solid white; /* Borda branca para destaque no azul */
-    background-color: white; /* Fundo branco caso haja transparência */
-    padding: 2px;
+    height: 60px;            /* Altura fixa */
+    width: 60px;             /* Largura fixa igual a altura (quadrado) */
+    object-fit: cover;       /* O SEGREDO: Corta a imagem para caber sem distorcer */
+    border-radius: 50%;      /* Transforma o quadrado em círculo */
+    border: 3px solid white; /* Borda branca para destaque */
+    background-color: white; /* Fundo branco de segurança */
+    flex-shrink: 0;          /* Impede que a logo encolha em telas pequenas */
 }
 
 .logo span { color: var(--accent); }
