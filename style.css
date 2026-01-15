@@ -15,7 +15,7 @@ body {
 /* --- BARRA DE NAVEGAÇÃO --- */
 .navbar {
     background-color: var(--primary);
-    padding: 0.7rem 5%; /* Padding ajustado */
+    padding: 0.7rem 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -26,23 +26,41 @@ body {
 .logo { 
     font-size: 1.3rem; 
     font-weight: bold; 
-    display: flex;       /* Alinha imagem e texto lado a lado */
-    align-items: center; /* Centraliza verticalmente */
-    gap: 15px;           /* Espaço entre logo e texto */
+    display: flex;       
+    align-items: center; 
+    gap: 15px;           
 }
 
-/* --- CLASSE NOVA PARA CORRIGIR A IMAGEM --- */
+/* CLASSE DA IMAGEM - FORÇA O REDONDO */
 .logo-img {
-    height: 60px;            /* Altura fixa */
-    width: 60px;             /* Largura fixa igual a altura (quadrado) */
-    object-fit: cover;       /* O SEGREDO: Corta a imagem para caber sem distorcer */
-    border-radius: 50%;      /* Transforma o quadrado em círculo */
-    border: 3px solid white; /* Borda branca para destaque */
-    background-color: white; /* Fundo branco de segurança */
-    flex-shrink: 0;          /* Impede que a logo encolha em telas pequenas */
+    height: 60px;            
+    width: 60px;             
+    min-width: 60px;         /* Impede esmagamento */
+    min-height: 60px;        /* Impede esmagamento */
+    object-fit: cover;       
+    border-radius: 50%;      
+    border: 3px solid white; 
+    background-color: white; 
+    
+    /* Removemos o display: block padrão para alinhar melhor no flex */
+    display: block;
 }
 
 .logo span { color: var(--accent); }
+
+/* Ajuste para telas menores (Celular) */
+@media (max-width: 600px) {
+    .logo {
+        font-size: 1rem; /* Diminui a fonte no celular */
+        gap: 10px;
+    }
+    .logo-img {
+        height: 45px; /* Logo um pouco menor no celular */
+        width: 45px;
+        min-width: 45px;
+        min-height: 45px;
+    }
+}
 
 .menu-categorias a {
     color: white;
